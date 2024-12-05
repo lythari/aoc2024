@@ -23,7 +23,7 @@ def sum_middle_number(my_lists):
 
 def is_ordered_list(my_list,previous_numbers):
     return all(
-        all(n in previous_numbers.get(j) for j in my_list[i:])
+        all(n in previous_numbers.get(j, []) for j in my_list[i:])
         for i,n in enumerate(my_list,1)
     )
     
