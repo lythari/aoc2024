@@ -6,7 +6,7 @@ concat = lambda a,b: int(str(a)+str(b))
 def is_possible(r, l, ops, s):
     if not l:
         return r in s
-    return any(is_possible(r, l[1:], ops, [op(i, l[0]) for op in ops]) for i in s)
+    return any(is_possible(r, l[1:], ops, [op(i, l[0]) for op in ops]) for i in s if i<=r)
 
 def sum_list(data, ops):
     for line in data:
@@ -17,6 +17,5 @@ def sum_list(data, ops):
             yield a
 
 data = Path('input.txt').read_text().splitlines()
-
 print(sum(sum_list(data, [add, mul])))
 print(sum(sum_list(data, [add, mul, concat])))
