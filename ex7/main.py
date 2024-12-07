@@ -1,17 +1,18 @@
 from pathlib import Path
+from operator import mul, add
 
+concat = lambda a,b: int(str(a)+str(b))
 
-def is_possible(r, l, s= None):
-    
+def is_possible(r, l, ops, s= None):
     if not l:
         return r in s
-    cur = l.pop(0)
+    cur = l[0]
     if s is None:
-        return is_possible(r, l, (cur, cur, cur))
-    if not l:
-        return r in (cur + i for i in s) or r in (cur * i for i in s) or r in (int(str(i)+str(cur)) for i in s)
-
-    return is_possible(r, l.copy(), (s[0]+cur, s[0]*cur, int(str(s[0])+str(cur)))) or is_possible(r, l.copy(), (s[1]+cur, s[1]*cur, int(str(s[1])+str(cur)))) or is_possible(r, l.copy(), (s[2]+cur, s[2]*cur, int(str(s[2])+str(cur))))
+        return is_possible(r, l[1:], ops, [cur for _ in ops])
+    if len(l) == 1:
+        return any(op(i,cur) == r for i in s for op in ops)
+    return any(is_possible(r, l[1:], ops, [op(i, cur) for op in ops]) for i in s)
 
 data = Path('input.txt').read_text().splitlines()
-print(sum(int(a) for a,b in (line.split(':') for line in data ) if is_possible(int(a), list(map(int,b.split())))))
+print(sum(int(a) for a,b in (line.split(':') for line in data ) if is_possible(int(a), list(map(int,b.split())), [add, mul])))
+print(sum(int(a) for a,b in (line.split(':') for line in data ) if is_possible(int(a), list(map(int,b.split())), [add, mul, concat])))
