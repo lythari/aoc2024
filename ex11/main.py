@@ -1,14 +1,14 @@
 from pathlib import Path
 from collections import defaultdict
+from textwrap import wrap
 
 global records 
 records = defaultdict(set)
 
 def blink_once(stone):
-    l = len(str(stone))
-    if l % 2 == 0:
-        return [int(str(stone)[:l//2]),int(str(stone)[l//2:])]
-    return [stone * 2024] if stone else [1]
+    if (l:=len(str(stone))) % 2 == 0:
+        return list(map(int,wrap(str(stone),l//2)))
+    return [[stone * 2024], [1]][stone==0]
 
 def blink(stone, nb):
     if (stone, nb) in records:
@@ -17,10 +17,7 @@ def blink(stone, nb):
         records[(stone, nb)] = len(blink_once(stone))
         return records[(stone, nb)]
     if len(str(stone)) % 2:
-        if stone:
-            records[(stone, nb)] = blink(stone*2024, nb - 1)
-        else:
-            records[(stone, nb)] = blink(1, nb - 1)
+        records[(stone, nb)] = [blink(stone*2024, nb - 1), blink(1, nb - 1)][stone==0]
         return records[(stone, nb)]
     return sum(blink(n, nb-1) for n in blink_once(stone))
 
