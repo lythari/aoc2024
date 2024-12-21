@@ -3,16 +3,10 @@ from itertools import pairwise, product
 from functools import cache
 import re
 
-@cache
 def possible_num_moves(from_button, to_button):
-    s = numpad_keys[from_button]
-    t = numpad_keys[to_button]
-    sx, sy = s
-    tx, ty = t
-    
-    hf = abs(sx-tx)*moves[[(-1,0),(1,0)][tx>sx]]+ abs(sy-ty)*moves[[(0,-1),(0,1)][ty>sy]] + 'A'
-    vf = abs(sy-ty)*moves[[(0,-1),(0,1)][ty>sy]]+ abs(sx-tx)*moves[[(-1,0),(1,0)][tx>sx]] + 'A'
-    
+    (sx, sy), (tx, ty) = numpad_keys[from_button], numpad_keys[to_button]
+    hf = abs(sx-tx)*['<','>'][tx>sx]+ abs(sy-ty)*['^','v'][ty>sy] + 'A'
+    vf = abs(sy-ty)*['^','v'][ty>sy]+ abs(sx-tx)*['<','>'][tx>sx] + 'A'
     if ty==3 and sx == 0: 
         return [hf]
     if tx == 0 and sy == 3:
@@ -21,32 +15,20 @@ def possible_num_moves(from_button, to_button):
 
 @cache
 def shortest_arrow_move(from_button, to_button, iterations):
-    s = arrow_keys[from_button]
-    t = arrow_keys[to_button]
-    sx, sy = s
-    tx, ty = t
+    (sx, sy), (tx, ty) = arrow_keys[from_button], arrow_keys[to_button]
     if iterations == 0:
         return abs(sx-tx)+abs(sy-ty)+1
     
-    
-    hf = 'A' +abs(sx-tx)*moves[[(-1,0),(1,0)][tx>sx]]+ abs(sy-ty)*moves[[(0,-1),(0,1)][ty>sy]] + 'A'
-    vf = 'A' +abs(sy-ty)*moves[[(0,-1),(0,1)][ty>sy]]+ abs(sx-tx)*moves[[(-1,0),(1,0)][tx>sx]] + 'A'
-    
-    
+    hf = 'A' +abs(sx-tx)*['<','>'][tx>sx]+ abs(sy-ty)*['^','v'][ty>sy] + 'A'
+    vf = 'A' +abs(sy-ty)*['^','v'][ty>sy]+ abs(sx-tx)*['<','>'][tx>sx] + 'A'
     hc = sum(shortest_arrow_move(hf[x], hf[x+1], iterations-1) for x in range(len(hf)-1))
     vc = sum(shortest_arrow_move(vf[x], vf[x+1], iterations-1) for x in range(len(vf)-1))
-    
-    if ty==0 and sx == 0: 
-        return hc
-    if tx == 0 and sy == 0:
-        return vc
-    return min(hc, vc)
+    return min([float('inf'),hc][tx != 0 or sy != 0],[float('inf'),vc][ty != 0 or sx != 0])
 
 
 pattern = re.compile('(\d+)A')
 arrow_keys = {'A' : (2,0), '^': (1,0), '<': (0,1), 'v': (1,1), '>': (2,1)}
 numpad_keys = {'7': (0,0), '8':(1,0), '9':(2,0),'4': (0,1), '5':(1,1), '6':(2,1),'1':(0,2),'2':(1,2),'3':(2,2),'0':(1,3),'A':(2,3)}
-moves = {(0,1): 'v', (1,0): '>', (0,-1): '^', (-1,0):'<'}
 tot_2 = tot_25 = tot_100 = 0
 
 for code in Path('input.txt').read_text().splitlines():
