@@ -4,15 +4,12 @@ from collections import defaultdict
 from datetime import datetime
 
 now = datetime.now
-@cache
 def mix(number, secret):
     return number ^ secret
 
-@cache
 def prune(number):
     return number % 16777216
 
-@cache
 def evolve(secret):
     secret = prune(mix(secret,secret*64))
     secret = prune(mix(secret//32,secret))
