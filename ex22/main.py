@@ -1,9 +1,7 @@
 from pathlib import Path
-from functools import cache
 from collections import defaultdict
-from datetime import datetime
 
-now = datetime.now
+
 def mix(number, secret):
     return number ^ secret
 
@@ -21,25 +19,21 @@ def walk_secrets(secret):
         secret = evolve(secret)
         yield secret
 
-print(f"Initialisation - {now()}")
+
 sum_secret,cumulative_offers  = 0,defaultdict(int)
 
 for monkey_number, initial_secret in enumerate(list(map(int,Path('input.txt').read_text().splitlines()))):
-    sequence, previous_offer, offer, offers_made = [], None, 0, {}
+    sequence, previous_offer, offer, offers_made = [], None, int(str(initial_secret)[-1:]), defaultdict(int)
     for secret_number in walk_secrets(initial_secret):
-        if previous_offer is None:
-            previous_offer, offer = offer, int(str(secret_number)[-1:])
-            continue
         previous_offer, offer = offer, int(str(secret_number)[-1:])
         sequence.append(offer-previous_offer)
         if len(sequence) >=4:
             sequence = sequence[-4:]
             a, b, c, d = sequence
             if (a,b,c,d) not in offers_made:
-                offers_made[(a,b,c,d)] = 1
-                cumulative_offers[(a,b,c,d)]+=offer
+                cumulative_offers[(a,b,c,d)]+=offer + offers_made[(a,b,c,d)]
     sum_secret += secret_number
-print(f"Walked - {now()}")
+    
 print(sum_secret)
-print(max(cumulative_offers.values()))
-print(f"Result - {now()}")
+m = max(cumulative_offers.values())
+print(m, [k for k,v in cumulative_offers.items() if v == m])
